@@ -3,7 +3,7 @@ const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
 
-// Store conversation (for bonus points)
+// Conversation history (bonus points)
 let messages = [
   {
     role: "system",
@@ -22,13 +22,13 @@ chatForm.addEventListener("submit", async (e) => {
   const userMessage = userInput.value.trim();
   if (!userMessage) return;
 
-  // Add user message to UI
+  // Show user message
   const userDiv = document.createElement("div");
   userDiv.className = "msg user";
   userDiv.textContent = userMessage;
   chatWindow.appendChild(userDiv);
 
-  // Add to conversation history
+  // Add to history
   messages.push({
     role: "user",
     content: userMessage,
@@ -37,28 +37,30 @@ chatForm.addEventListener("submit", async (e) => {
   userInput.value = "";
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+    // 🔥 CALL YOUR CLOUDFLARE WORKER
+    const response = await fetch(
+      "https://broken-band-6c57.cherrygoyal162.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: messages,
+        }),
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: messages,
-      }),
-    });
+    );
 
     const data = await response.json();
     const botReply = data.choices[0].message.content;
 
-    // Add bot message to UI
+    // Show bot reply
     const botDiv = document.createElement("div");
     botDiv.className = "msg ai";
     botDiv.textContent = botReply;
     chatWindow.appendChild(botDiv);
 
-    // Save bot reply (for memory bonus)
+    // Save bot reply
     messages.push({
       role: "assistant",
       content: botReply,
