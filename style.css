@@ -141,3 +141,43 @@ body {
 .site-footer a:hover {
   color: #666666;
 }
+
+/* —— L'Oréal Branding Enhancements —— */
+
+/* Header styling */
+.site-header {
+  background-color: #000;
+  color: #fff;
+  padding: 20px;
+  border-radius: 6px;
+}
+
+.site-header p {
+  font-size: 14px;
+  color: #d4af37;
+}
+
+/* Chat bubbles */
+.msg {
+  padding: 10px;
+  border-radius: 12px;
+  max-width: 75%;
+}
+
+.msg.user {
+  background-color: #eeeeee;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.msg.ai {
+  background-color: #d4af37;
+  color: #000;
+  align-self: flex-start;
+}
+
+/* Make chat feel like real conversation */
+.chat-window {
+  display: flex;
+  flex-direction: column;
+}
