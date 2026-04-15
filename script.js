@@ -52,6 +52,13 @@ chatForm.addEventListener("submit", async (e) => {
     );
 
     const data = await response.json();
+
+    console.log(data); // 👈 helps debug
+
+    if (!data.choices) {
+      throw new Error("Invalid response from AI");
+    }
+
     const botReply = data.choices[0].message.content;
 
     // Show bot reply
