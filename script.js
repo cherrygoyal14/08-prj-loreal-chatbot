@@ -3,7 +3,7 @@ const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
 
-/* Conversation history */
+/* Store conversation */
 let messages = [
   {
     role: "system",
@@ -13,7 +13,7 @@ let messages = [
 ];
 
 /* Initial message */
-chatWindow.innerHTML = `<div class="msg ai">👋 Hello! How can I help you today?</div>`;
+addMessage("ai", "👋 Hello! How can I help you today?");
 
 /* Handle form submit */
 chatForm.addEventListener("submit", async (e) => {
@@ -22,11 +22,9 @@ chatForm.addEventListener("submit", async (e) => {
   const userMessage = userInput.value.trim();
   if (!userMessage) return;
 
-  // Show user message
-  const userDiv = document.createElement("div");
-  userDiv.className = "msg user";
-  userDiv.textContent = userMessage;
-  chatWindow.appendChild(userDiv);
+  // Add user message
+  addMessage("user", userMessage);
+  userInput.value = "";
 
   // Add to history
   messages.push({
@@ -34,54 +32,54 @@ chatForm.addEventListener("submit", async (e) => {
     content: userMessage,
   });
 
-  userInput.value = "";
+  // Show typing indicator
+  const typingDiv = addMessage("ai", "⏳ Typing...");
 
   try {
-    // 🔥 CALL CLOUDFLARE WORKER
     const response = await fetch(
-      "https://broken-band-6c57.cherrygoyal162.workers.dev",
+      "https://broken-band-6c57.cherrygoyal162.workers.dev/",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          messages: messages,
-        }),
+        body: JSON.stringify({ messages }),
       },
     );
 
     const data = await response.json();
 
-    console.log("API RESPONSE:", data); // debug
+    // Remove typing message
+    typingDiv.remove();
 
-    // Handle bad response
-    if (!data || !data.choices || !data.choices[0]) {
-      throw new Error("Invalid response from AI");
-    }
+    const aiReply =
+      data.choices?.[0]?.message?.content || "⚠️ No response from AI.";
 
-    const botReply = data.choices[0].message.content;
-
-    // Show AI message
-    const botDiv = document.createElement("div");
-    botDiv.className = "msg ai";
-    botDiv.textContent = botReply;
-    chatWindow.appendChild(botDiv);
+    // Add AI message
+    addMessage("ai", aiReply);
 
     // Save AI response
     messages.push({
       role: "assistant",
-      content: botReply,
+      content: aiReply,
     });
-
-    // Auto scroll
-    chatWindow.scrollTop = chatWindow.scrollHeight;
   } catch (error) {
-    console.error("ERROR:", error);
-
-    const errorDiv = document.createElement("div");
-    errorDiv.className = "msg ai";
-    errorDiv.textContent = "⚠️ Error connecting to AI.";
-    chatWindow.appendChild(errorDiv);
+    typingDiv.remove();
+    addMessage("ai", "⚠️ Error connecting to AI.");
+    console.error(error);
   }
 });
+
+/* Helper to add messages */
+function addMessage(type, text) {
+  const div = document.createElement("div");
+  div.className = `msg ${type}`;
+  div.textContent = text;
+
+  chatWindow.appendChild(div);
+
+  // Auto scroll
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+
+  return div;
+}
