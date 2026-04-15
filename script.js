@@ -3,7 +3,7 @@ const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
 
-// Conversation history (bonus points)
+/* Conversation history */
 let messages = [
   {
     role: "system",
@@ -12,7 +12,7 @@ let messages = [
   },
 ];
 
-// Initial message
+/* Initial message */
 chatWindow.innerHTML = `<div class="msg ai">👋 Hello! How can I help you today?</div>`;
 
 /* Handle form submit */
@@ -37,7 +37,7 @@ chatForm.addEventListener("submit", async (e) => {
   userInput.value = "";
 
   try {
-    // 🔥 CALL YOUR CLOUDFLARE WORKER
+    // 🔥 CALL CLOUDFLARE WORKER
     const response = await fetch(
       "https://broken-band-6c57.cherrygoyal162.workers.dev",
       {
@@ -53,21 +53,22 @@ chatForm.addEventListener("submit", async (e) => {
 
     const data = await response.json();
 
-    console.log(data); // 👈 helps debug
+    console.log("API RESPONSE:", data); // debug
 
-    if (!data.choices) {
+    // Handle bad response
+    if (!data || !data.choices || !data.choices[0]) {
       throw new Error("Invalid response from AI");
     }
 
     const botReply = data.choices[0].message.content;
 
-    // Show bot reply
+    // Show AI message
     const botDiv = document.createElement("div");
     botDiv.className = "msg ai";
     botDiv.textContent = botReply;
     chatWindow.appendChild(botDiv);
 
-    // Save bot reply
+    // Save AI response
     messages.push({
       role: "assistant",
       content: botReply,
@@ -76,7 +77,7 @@ chatForm.addEventListener("submit", async (e) => {
     // Auto scroll
     chatWindow.scrollTop = chatWindow.scrollHeight;
   } catch (error) {
-    console.error(error);
+    console.error("ERROR:", error);
 
     const errorDiv = document.createElement("div");
     errorDiv.className = "msg ai";
