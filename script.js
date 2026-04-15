@@ -49,11 +49,18 @@ chatForm.addEventListener("submit", async (e) => {
 
     const data = await response.json();
 
-    // Remove typing message
+    console.log("FULL API RESPONSE:", data); // DEBUG
+
+    // Remove typing indicator
     typingDiv.remove();
 
-    const aiReply =
-      data.choices?.[0]?.message?.content || "⚠️ No response from AI.";
+    let aiReply = "⚠️ No response from AI.";
+
+    if (data && data.choices && data.choices.length > 0) {
+      if (data.choices[0].message && data.choices[0].message.content) {
+        aiReply = data.choices[0].message.content;
+      }
+    }
 
     // Add AI message
     addMessage("ai", aiReply);
@@ -70,7 +77,7 @@ chatForm.addEventListener("submit", async (e) => {
   }
 });
 
-/* Helper to add messages */
+/* Helper function */
 function addMessage(type, text) {
   const div = document.createElement("div");
   div.className = `msg ${type}`;
